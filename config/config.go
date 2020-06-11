@@ -45,9 +45,9 @@ func GetScriptsFolder() string {
 }
 
 /*
-GetInstallPythonFile returns the install
+InstallPythonEnvScript returns the install
 Python script path
 */
-func GetInstallPythonFile() string {
-	return filepath.Join(GetScriptsFolder(), "setup_python.sh")
+func InstallPythonEnvScript() string {
+	return filepath.Join(GetScriptsFolder(), "setup_python_environment.sh")
 }

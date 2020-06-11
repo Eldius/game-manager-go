@@ -4,34 +4,17 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"fmt"
 	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
+	"github.com/gobuffalo/packr"
 )
 
 const (
-	baseScript = `#!/bin/bash
-
-## header ##
-
-env | grep PATH
-env | grep HOME
-
-echo "$( which pyenv )"
-
-whoami
-
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-
-## header ##
-
-pyenv commands
-
-`
-
+	scriptHeader = "header.sh"
+	setupPythonEnvironment = "setup/setup_python_environment.sh"
 	setupPython = `pyenv install -l`
-
 	helpCommand = `pyenv help`
 )
 
@@ -43,11 +26,33 @@ func GenerateScripts() {
 	scriptsFolder := config.GetScriptsFolder()
 	_ = os.MkdirAll(scriptsFolder, os.ModePerm)
 
-	//baseScriptParsed := fmt.Sprintf(baseScript, config.GetPyenvBinFolder())
+	setupPythonScriptContent := RenderScript(setupPythonEnvironment)
 
-	setupPythonScriptContent := strings.Join([]string{baseScript, setupPython}, "\n")
+	log.Printf("---\ngenerated script:\n%s\n\n#%s\n---\n", setupPythonScriptContent, config.InstallPythonEnvScript())
 
-	log.Println("---\ngenerated script:\n", setupPythonScriptContent, "\n---")
+	ioutil.WriteFile(config.InstallPythonEnvScript(), []byte(setupPythonScriptContent), os.ModePerm)
+}
 
-	ioutil.WriteFile(config.GetInstallPythonFile(), []byte(setupPythonScriptContent), os.ModePerm)
+/*
+RenderScript returns a script from template
+passed as parameter
+*/
+func RenderScript(path string) string {
+	header := GetScriptTemplate(scriptHeader)
+	script := GetScriptTemplate(path)
+
+	return strings.Join([]string{header, script}, "\n#---\n")
+}
+
+/*
+GetScriptTemplate returns a script template
+*/
+func GetScriptTemplate(path string) string {
+	box := packr.NewBox("./scripts")
+	s, err := box.FindString(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(s)
+	return s
 }

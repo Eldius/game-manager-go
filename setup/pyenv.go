@@ -1,13 +1,9 @@
 package setup
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/command"
@@ -40,8 +36,6 @@ func SetPyenv() {
 				Progress:   os.Stdout,
 			})
 		}
-		SetPython()
-		SetAnsible()
 	} else if runtime.GOOS == "windows" {
 		log.Println("[not implemented yet] Cloning pyenv-win...")
 		os.Exit(1)
@@ -49,62 +43,10 @@ func SetPyenv() {
 }
 
 /*
-SetPython installs ansible
+SetPythonEnv sets up the Python environment
 */
-func SetPython() {
-	command.PyenvExecuteCommand([]string{"install", "3.8.0"})
-}
-
-/*
-Test just test
-*/
-func Test(args []string) {
-	command.PyenvExecuteCommand(args)
-}
-
-
-/*
-ShellTest just test
-*/
-func ShellTest() {
-	cmd := exec.Command("env")
-	log.Println("cmd:", cmd.String())
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	sysPath, _ := os.LookupEnv("PATH")
-
-	newPath := fmt.Sprintf("PATH=\"%s:%s\"", config.GetPyenvBinFolder(), sysPath)
-	newUserHome := fmt.Sprintf("HOME=%s", config.WorkspaceFolder())
-	cmd.Env = []string{newPath, newUserHome}
-	log.Println()
-	log.Println("---")
-	if err := cmd.Run(); err != nil {
-		log.Println("---")
-		log.Panic(err.Error())
-	}
-	log.Println("---")
-}
-
-/*
-SetAnsible installs ansible
-*/
-func SetAnsible() {
+func SetPythonEnv() {
 	log.Println("seting up ansible")
-	cmd := exec.Command("pip install ansible")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	var env []string
-	pyenvFolder := config.GetPyenvFolder()
-	pyenvBinFolder := filepath.Join(pyenvFolder, "bin")
-	sysPath, _ := os.LookupEnv("PATH")
-	newPath := strings.Join([]string{pyenvBinFolder, sysPath}, ":")
-	log.Println("path:", newPath)
-	env = append(env, fmt.Sprintf("PATH=%s", newPath), fmt.Sprintf("HOME=%s", pyenvFolder))
-	cmd.Env = env
 
-	if err := cmd.Run(); err != nil {
-		log.Panic(err.Error())
-	}
+	command.ExecuteScript(config.InstallPythonEnvScript())
 }

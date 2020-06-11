@@ -11,6 +11,7 @@ import (
 Setup sets up the environment
 */
 func Setup() {
+	GenerateScripts()
 	if !ValidateWorkspaceFolder() {
 		SetWorkspaceFolder()
 	}
@@ -18,7 +19,7 @@ func Setup() {
 	if !ValidatePyenv() {
 		SetPyenv()
 	}
-	SetPython()
+	SetPythonEnv()
 }
 
 /*

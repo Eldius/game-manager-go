@@ -23,8 +23,6 @@ func GetExecutionEnvVars() []string {
 	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
 }
 
-
-
 /*
 ExecuteScript executes script by file path
 */
@@ -43,9 +41,9 @@ func ExecuteScript(scriptPath string) {
 }
 
 /*
-PyenvExecuteCommand just executes a pyenv command
+ExecutePyenvCommand just executes a pyenv command
 */
-func PyenvExecuteCommand(args []string) {
+func ExecutePyenvCommand(args []string) {
 
 	pyenv := filepath.Join(config.GetPyenvBinFolder(), "pyenv")
 
@@ -62,14 +60,27 @@ func PyenvExecuteCommand(args []string) {
 	executeCmd(cmd)
 }
 
+/*
+ExecuteShellCommand executes a command
+*/
+func ExecuteShellCommand(command []string) {
+	executeCmd(&exec.Cmd{
+		Args: command,
+		Env: GetExecutionEnvVars(),
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
+	})
+}
+
 func executeCmd(cmd *exec.Cmd) {
 	log.Println("cmd:", cmd.String())
 
 	log.Println()
-	log.Println("---")
+	log.Println("**********")
 	if err := cmd.Run(); err != nil {
 		log.Println("---")
-		log.Panic(err.Error())
+		log.Println("Failed to install python")
+		log.Println(err.Error())
 	}
-	log.Println("---")
+	log.Println("**********")
 }
