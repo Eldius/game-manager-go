@@ -1,10 +1,10 @@
 package setup
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"fmt"
 	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	scriptHeader = "header.sh"
+	scriptHeader           = "header.sh"
 	setupPythonEnvironment = "setup/setup_python_environment.sh"
-	setupPython = `pyenv install -l`
-	helpCommand = `pyenv help`
+	setupPython            = `pyenv install -l`
+	helpCommand            = `pyenv help`
 )
 
 /*

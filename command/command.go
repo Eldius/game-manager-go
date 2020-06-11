@@ -1,11 +1,11 @@
 package command
 
 import (
-	"os/exec"
-	"log"
-	"os"
 	"fmt"
 	"github.com/Eldius/game-manager-go/config"
+	"log"
+	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -65,8 +65,8 @@ ExecuteShellCommand executes a command
 */
 func ExecuteShellCommand(command []string) {
 	executeCmd(&exec.Cmd{
-		Args: command,
-		Env: GetExecutionEnvVars(),
+		Args:   command,
+		Env:    GetExecutionEnvVars(),
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
 	})

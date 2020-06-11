@@ -5,8 +5,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/command"
+	"github.com/Eldius/game-manager-go/config"
 	"github.com/go-git/go-git/v5"
 )
 
