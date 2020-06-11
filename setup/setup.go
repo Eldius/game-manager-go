@@ -18,7 +18,6 @@ func Setup() {
 	if !ValidatePyenv() {
 		SetPyenv()
 	}
-	GenerateScripts()
 	SetPython()
 }
 

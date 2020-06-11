@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/command"
 	"github.com/go-git/go-git/v5"
 )
 
@@ -51,83 +52,16 @@ func SetPyenv() {
 SetPython installs ansible
 */
 func SetPython() {
-	PyenvExecuteCommand([]string{"help"})
-	executeScript(config.GetInstallPythonFile())
-}
-
-func executeScript(scriptPath string) {
-	execArgs := append([]string{scriptPath})
-	cmd := &exec.Cmd{
-		Path:   scriptPath,
-		Args:   execArgs,
-		Env:    getExecutionEnvVars(),
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
-
-	log.Println("cmd:", cmd.String())
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	log.Println("pyenv path:\n", cmd.Env)
-	log.Println()
-	log.Println("---")
-	if err := cmd.Run(); err != nil {
-		log.Println("---")
-		log.Panic(err.Error())
-	}
-	log.Println("---")
-
+	command.PyenvExecuteCommand([]string{"install", "3.8.0"})
 }
 
 /*
 Test just test
 */
 func Test(args []string) {
-	PyenvExecuteCommand(args)
+	command.PyenvExecuteCommand(args)
 }
 
-func getExecutionEnvVars() []string {
-	sysPath, _ := os.LookupEnv("PATH")
-	newPath := fmt.Sprintf("PATH=%s:%s", config.GetPyenvBinFolder(), sysPath)
-	workspace := config.WorkspaceFolder()
-	newUserHome := fmt.Sprintf("HOME=%s", workspace)
-	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
-
-	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
-}
-
-/*
-PyenvExecuteCommand just test
-*/
-func PyenvExecuteCommand(args []string) {
-
-	pyenv := filepath.Join(config.GetPyenvBinFolder(), "pyenv")
-
-	execArgs := append([]string{pyenv}, args...)
-	cmd := &exec.Cmd{
-		Path: pyenv,
-		Args: execArgs,
-		Env:  getExecutionEnvVars(),
-		//Stdin: os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
-
-	log.Println("cmd:", cmd.String())
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	log.Println()
-	log.Println("---")
-	if err := cmd.Run(); err != nil {
-		log.Println("---")
-		log.Panic(err.Error())
-	}
-	log.Println("---")
-}
 
 /*
 ShellTest just test
