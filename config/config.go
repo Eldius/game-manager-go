@@ -18,12 +18,12 @@ var scripts = map[string]string{
 
 /*
 ScriptDef represents a model to
-render a script 
+render a script
 */
 type ScriptDef struct {
 	Name     string
 	Template string
-	Path 	 string
+	Path     string
 }
 
 /*
@@ -79,7 +79,7 @@ func GetAllScripts() []ScriptDef {
 }
 
 /*
-GetScriptInfo returns 
+GetScriptInfo returns
 */
 func GetScriptInfo(scriptName string) ScriptDef {
 	return ScriptDef{

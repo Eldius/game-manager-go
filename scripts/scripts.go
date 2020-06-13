@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/packr"
-
 )
 
 const (

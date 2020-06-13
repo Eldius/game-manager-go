@@ -2,8 +2,8 @@ package setup
 
 import (
 	"io/ioutil"
-	"os"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/Eldius/game-manager-go/config"
