@@ -1,2 +1,3 @@
-# Go 1.4 Gitpod template #
-A Template to use Go 1.4 at Gitpod
+# Game Manager #
+
+A simple tool to manage game servers

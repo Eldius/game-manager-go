@@ -95,3 +95,11 @@ GetScriptPath Returns the path for this script
 func GetScriptPath(scriptName string) string {
 	return filepath.Join(GetScriptsFolder(), scripts[scriptName])
 }
+
+/*
+SaveConfigurationSaveConfiguration
+persists the current configuration
+*/
+func SaveConfiguration() {
+	viper.SafeWriteConfig()
+}

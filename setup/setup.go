@@ -20,6 +20,7 @@ func Setup() {
 		SetPyenv()
 	}
 	SetPythonEnv()
+	config.SaveConfiguration()
 }
 
 /*
