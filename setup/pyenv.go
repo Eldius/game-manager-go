@@ -48,5 +48,5 @@ SetPythonEnv sets up the Python environment
 func SetPythonEnv() {
 	log.Println("seting up ansible")
 
-	command.ExecuteScript(config.InstallPythonEnvScript())
+	command.ExecuteScript(config.GetScriptPath("install_python_env"))
 }

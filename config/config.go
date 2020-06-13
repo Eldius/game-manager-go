@@ -12,6 +12,20 @@ const (
 	scriptsFolder = "scripts"
 )
 
+var scripts = map[string]string{
+	"install_python_env": "scripts/setup/setup_python_environment.sh",
+}
+
+/*
+ScriptDef represents a model to
+render a script 
+*/
+type ScriptDef struct {
+	Name     string
+	Template string
+	Path 	 string
+}
+
 /*
 WorkspaceFolder returns the workspace folder
 */
@@ -48,6 +62,36 @@ func GetScriptsFolder() string {
 InstallPythonEnvScript returns the install
 Python script path
 */
-func InstallPythonEnvScript() string {
-	return filepath.Join(GetScriptsFolder(), "setup_python_environment.sh")
+//func InstallPythonEnvScript() string {
+//	return filepath.Join(GetScriptsFolder(), scripts["install_python_env"])
+//}
+
+/*
+GetAllScripts returns all the script models
+*/
+func GetAllScripts() []ScriptDef {
+	var scriptList []ScriptDef
+	for k := range scripts {
+		scriptList = append(scriptList, GetScriptInfo(k))
+	}
+
+	return scriptList
+}
+
+/*
+GetScriptInfo returns 
+*/
+func GetScriptInfo(scriptName string) ScriptDef {
+	return ScriptDef{
+		Name:     scriptName,
+		Template: scripts[scriptName],
+		Path:     GetScriptPath(scriptName),
+	}
+}
+
+/*
+GetScriptPath Returns the path for this script
+*/
+func GetScriptPath(scriptName string) string {
+	return filepath.Join(GetScriptsFolder(), scripts[scriptName])
 }
