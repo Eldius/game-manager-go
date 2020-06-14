@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Eldius/game-manager-go/setup"
 	"github.com/spf13/cobra"
@@ -13,7 +13,7 @@ var setupCmd = &cobra.Command{
 	Short: "Set's up the runtime environment",
 	Long:  `Set's up the runtime environment.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Is environment ready?", setup.ValidateSetup())
+		log.Println("Is environment ready?", setup.ValidateSetup())
 		setup.Setup()
 	},
 }

@@ -4,8 +4,10 @@ Package cmd is where all commands will be
 package cmd
 
 import (
+	"log"
 	"fmt"
 	"os"
+	"io"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -30,7 +32,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 }
@@ -46,22 +48,24 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	// Find home directory.
+	home, err := homedir.Dir()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	setupLog(home)
+
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		// Search config in home directory with name ".game-manager-go" (without extension).
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(filepath.Join(home, ".game-manager"))
@@ -75,6 +79,20 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		log.Println("Using config file:", viper.ConfigFileUsed())
+	}
+}
+
+func setupLog(home string) {
+	logDir := filepath.Join(home, ".game-manager", "log")
+	os.MkdirAll(logDir, os.ModePerm)
+	logFile := filepath.Join(logDir, "execution.log")
+	fmt.Println("logging to", logFile)
+	if f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666); err == nil {
+		mw := io.MultiWriter(os.Stdout, f)
+		log.SetOutput(mw)
+	} else {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/logger"
 	"log"
 	"os"
 	"os/exec"
@@ -28,12 +29,14 @@ ExecuteScript executes script by file path
 */
 func ExecuteScript(scriptPath string) {
 	execArgs := append([]string{scriptPath})
+
+	l := logger.NewLogWriter(logger.DefaultLogger())
 	cmd := &exec.Cmd{
 		Path:   scriptPath,
 		Args:   execArgs,
 		Env:    GetExecutionEnvVars(),
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdout: l,
+		Stderr: l,
 	}
 
 	executeCmd(cmd)
@@ -48,13 +51,15 @@ func ExecutePyenvCommand(args []string) {
 	pyenv := filepath.Join(config.GetPyenvBinFolder(), "pyenv")
 
 	execArgs := append([]string{pyenv}, args...)
+
+	l := logger.NewLogWriter(logger.DefaultLogger())
 	cmd := &exec.Cmd{
 		Path: pyenv,
 		Args: execArgs,
 		Env:  GetExecutionEnvVars(),
 		//Stdin: os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdout: l,
+		Stderr: l,
 	}
 
 	executeCmd(cmd)
@@ -64,11 +69,12 @@ func ExecutePyenvCommand(args []string) {
 ExecuteShellCommand executes a command
 */
 func ExecuteShellCommand(command []string) {
+	l := logger.NewLogWriter(logger.DefaultLogger())
 	executeCmd(&exec.Cmd{
 		Args:   command,
 		Env:    GetExecutionEnvVars(),
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdout: l,
+		Stderr: l,
 	})
 }
 
