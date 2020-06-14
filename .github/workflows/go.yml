@@ -1,0 +1,62 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.14
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.14
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Test
+      run: go test -v .
+
+    - name: Build
+      run: go build -v -o .bin/game-manager.linux.amd64 .
+
+    - name: Create Bintray Package
+      run: |
+        curl -i -X POST 'https://api.bintray.com/packages/eldius/game-manager' \
+          -ueldius:${{secrets.BINTRAY_SECRET_KEY}} \
+          -H 'Content-Type: application/json' \
+          -d '{
+              "name": "game-manager",
+              "desc": "game-manager",
+              "labels": ["http", "test", "app"],
+              "licenses": ["GPL-3.0"],
+              "vcs_url": "https://github.com/Eldius/game-manager-go.git",
+              "website_url": "https://github.com/Eldius/game-manager-go",
+              "public_download_numbers": true,
+              "public_stats": true
+          }'
+
+    - name: Create Bintray develop Version
+      run: |
+        curl -i -X POST 'https://api.bintray.com/packages/eldius/game-manager/game-manager/versions' \
+          -ueldius:${{secrets.BINTRAY_SECRET_KEY}} \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "name": "develop"
+          }'
+    - name: Upload to Bintray Linux amd64
+      run: |
+        curl -i \
+          -H "X-GPG-PASSPHRASE: ${{secrets.BINTRAY_SIGNIN_KEY}}" \
+          -X PUT \
+          -T .bin/game-manager.linux.amd64 \
+          -ueldius:${{secrets.BINTRAY_SECRET_KEY}} \
+          "https://api.bintray.com/content/eldius/game-manager/game-manager/development/game-manager.linux.amd64.$( git rev-parse --short HEAD );publish=1;override=1"
