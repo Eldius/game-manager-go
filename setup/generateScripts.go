@@ -1,11 +1,11 @@
 package setup
 
 import (
-	"strings"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/scripts"
@@ -23,6 +23,7 @@ func GenerateScripts() {
 	//scriptsFolder := config.GetScriptsFolder()
 	//_ = os.MkdirAll(scriptsFolder, os.ModePerm)
 
+	templateVars := scripts.GetTemplateVars()
 	for _, s := range config.GetAllScripts() {
 		scriptFolder := filepath.Dir(s.Path)
 		log.Println(s)
@@ -30,7 +31,7 @@ func GenerateScripts() {
 		if err := os.MkdirAll(scriptFolder, os.ModePerm); err != nil {
 			log.Println(err.Error())
 		}
-		ioutil.WriteFile(s.Path, []byte(scripts.RenderScript(s.Template)), getFileMode(s))
+		ioutil.WriteFile(s.Path, []byte(scripts.RenderScript(s, templateVars)), getFileMode(s))
 	}
 }
 
