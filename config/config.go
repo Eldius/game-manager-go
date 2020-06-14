@@ -13,7 +13,7 @@ const (
 )
 
 var scripts = map[string]string{
-	"install_python_env": "scripts/setup/setup_python_environment.sh",
+	"install_python_env": "shell/setup/setup_python_environment.sh",
 }
 
 /*

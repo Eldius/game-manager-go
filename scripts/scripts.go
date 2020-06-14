@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	scriptHeader = "scripts/header.sh"
+	scriptHeader = "shell/header.sh"
 )
 
 var box = packr.NewBox("./templates")
