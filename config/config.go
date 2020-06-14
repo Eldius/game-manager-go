@@ -14,6 +14,7 @@ const (
 
 var scripts = map[string]string{
 	"install_python_env": "shell/setup/setup_python_environment.sh",
+	"ansible_requirements": "ansible/roles/requirements.yml",
 }
 
 /*
@@ -97,8 +98,8 @@ func GetScriptPath(scriptName string) string {
 }
 
 /*
-SaveConfigurationSaveConfiguration
-persists the current configuration
+SaveConfiguration persists the
+current configuration
 */
 func SaveConfiguration() {
 	viper.SafeWriteConfig()

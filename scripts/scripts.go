@@ -2,16 +2,22 @@ package scripts
 
 import (
 	"log"
+	"bytes"
 	"strings"
+	"text/template"
 
 	"github.com/gobuffalo/packr"
+	"github.com/Eldius/game-manager-go/config"
 )
 
 const (
 	scriptHeader = "shell/header.sh"
 )
 
-var box = packr.NewBox("./templates")
+var (
+	box = packr.NewBox("./templates")
+	engine = template.New("scripts_parser")
+)
 
 /*
 RenderScript returns a script from template
@@ -21,7 +27,17 @@ func RenderScript(path string) string {
 	header := GetScriptTemplate(scriptHeader)
 	script := GetScriptTemplate(path)
 
-	return strings.Join([]string{header, script}, "\n#---\n")
+	templateMap := map[string]string {
+		"WORKSPACE_PATH": config.WorkspaceFolder(),
+	}
+
+	tmpl, err := engine.Parse(strings.Join([]string{header, script}, "\n#---\n"))
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	buf := new(bytes.Buffer)
+	tmpl.Execute(buf, templateMap)
+	return buf.String()
 }
 
 /*

@@ -1,0 +1,5 @@
+---
+- src: https://github.com/Eldius/minecraft-java-edition-ansible-role.git
+  name: minecraft-java-edition
+  scm: git
+  version: master

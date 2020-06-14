@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"strings"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,6 +30,13 @@ func GenerateScripts() {
 		if err := os.MkdirAll(scriptFolder, os.ModePerm); err != nil {
 			log.Println(err.Error())
 		}
-		ioutil.WriteFile(s.Path, []byte(scripts.RenderScript(s.Template)), os.ModePerm)
+		ioutil.WriteFile(s.Path, []byte(scripts.RenderScript(s.Template)), getFileMode(s))
 	}
+}
+
+func getFileMode(s config.ScriptDef) os.FileMode {
+	if strings.HasSuffix(s.Path, "sh") {
+		return os.ModePerm
+	}
+	return 0666
 }
