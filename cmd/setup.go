@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 
+	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/setup"
 	"github.com/spf13/cobra"
 )
@@ -13,8 +14,9 @@ var setupCmd = &cobra.Command{
 	Short: "Set's up the runtime environment",
 	Long:  `Set's up the runtime environment.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("Is environment ready?", setup.ValidateSetup())
-		setup.Setup()
+		cfg := config.GetAppConfig()
+		log.Println("Is environment ready?", setup.ValidateSetup(*cfg))
+		setup.Setup(*cfg)
 	},
 }
 

@@ -2,22 +2,23 @@ package command
 
 import (
 	"fmt"
-	"github.com/Eldius/game-manager-go/config"
-	"github.com/Eldius/game-manager-go/logger"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/logger"
 )
 
 /*
 GetExecutionEnvVars generates the env vars to execute
 commands or scripts
 */
-func GetExecutionEnvVars() []string {
+func GetExecutionEnvVars(cfg config.ManagerConfig) []string {
 	sysPath, _ := os.LookupEnv("PATH")
-	newPath := fmt.Sprintf("PATH=%s:%s", config.GetPyenvBinFolder(), sysPath)
-	workspace := config.WorkspaceFolder()
+	newPath := fmt.Sprintf("PATH=%s:%s", cfg.GetPyenvBinFolder(), sysPath)
+	workspace := cfg.Workspace
 	newUserHome := fmt.Sprintf("HOME=%s", workspace)
 	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
 
@@ -27,14 +28,14 @@ func GetExecutionEnvVars() []string {
 /*
 ExecuteScript executes script by file path
 */
-func ExecuteScript(scriptPath string) {
+func ExecuteScript(scriptPath string, cfg config.ManagerConfig) {
 	execArgs := append([]string{scriptPath})
 
 	l := logger.NewLogWriter(logger.DefaultLogger())
 	cmd := &exec.Cmd{
 		Path:   scriptPath,
 		Args:   execArgs,
-		Env:    GetExecutionEnvVars(),
+		Env:    GetExecutionEnvVars(cfg),
 		Stdout: l,
 		Stderr: l,
 	}
@@ -46,9 +47,9 @@ func ExecuteScript(scriptPath string) {
 /*
 ExecutePyenvCommand just executes a pyenv command
 */
-func ExecutePyenvCommand(args []string) {
+func ExecutePyenvCommand(args []string, cfg config.ManagerConfig) {
 
-	pyenv := filepath.Join(config.GetPyenvBinFolder(), "pyenv")
+	pyenv := filepath.Join(cfg.GetPyenvBinFolder(), "pyenv")
 
 	execArgs := append([]string{pyenv}, args...)
 
@@ -56,7 +57,7 @@ func ExecutePyenvCommand(args []string) {
 	cmd := &exec.Cmd{
 		Path: pyenv,
 		Args: execArgs,
-		Env:  GetExecutionEnvVars(),
+		Env:  GetExecutionEnvVars(cfg),
 		//Stdin: os.Stdin,
 		Stdout: l,
 		Stderr: l,
@@ -68,11 +69,11 @@ func ExecutePyenvCommand(args []string) {
 /*
 ExecuteShellCommand executes a command
 */
-func ExecuteShellCommand(command []string) {
+func ExecuteShellCommand(command []string, cfg config.ManagerConfig) {
 	l := logger.NewLogWriter(logger.DefaultLogger())
 	executeCmd(&exec.Cmd{
 		Args:   command,
-		Env:    GetExecutionEnvVars(),
+		Env:    GetExecutionEnvVars(cfg),
 		Stdout: l,
 		Stderr: l,
 	})

@@ -10,40 +10,40 @@ import (
 /*
 Setup sets up the environment
 */
-func Setup() {
-	GenerateScripts()
-	if !ValidateWorkspaceFolder() {
-		SetWorkspaceFolder()
+func Setup(cfg config.ManagerConfig) {
+	GenerateScripts(cfg)
+	if !ValidateWorkspaceFolder(cfg) {
+		SetWorkspaceFolder(cfg)
 	}
 
-	if !ValidatePyenv() {
-		SetPyenv()
+	if !ValidatePyenv(cfg) {
+		SetPyenv(cfg)
 	}
-	SetPythonEnv()
+	SetPythonEnv(cfg)
 	config.SaveConfiguration()
 }
 
 /*
 SetWorkspaceFolder Creates the bin folder
 */
-func SetWorkspaceFolder() {
-	os.MkdirAll(config.WorkspaceFolder(), os.ModePerm)
+func SetWorkspaceFolder(cfg config.ManagerConfig) {
+	os.MkdirAll(cfg.Workspace, os.ModePerm)
 }
 
 /*
 ValidateSetup validates dependency
 setup
 */
-func ValidateSetup() bool {
-	return ValidateWorkspaceFolder() && ValidatePyenv()
+func ValidateSetup(cfg config.ManagerConfig) bool {
+	return ValidateWorkspaceFolder(cfg) && ValidatePyenv(cfg)
 }
 
 /*
 ValidateWorkspaceFolder validates workspace
 folder exists
 */
-func ValidateWorkspaceFolder() bool {
-	if _, err := os.Stat(config.WorkspaceFolder()); err != nil {
+func ValidateWorkspaceFolder(cfg config.ManagerConfig) bool {
+	if _, err := os.Stat(cfg.Workspace); err != nil {
 		return false
 	}
 	return true
@@ -53,8 +53,8 @@ func ValidateWorkspaceFolder() bool {
 ValidatePyenv validates dependency
 setup
 */
-func ValidatePyenv() bool {
-	if _, err := os.Stat(filepath.Join(config.WorkspaceFolder(), "pyenv")); err != nil {
+func ValidatePyenv(cfg config.ManagerConfig) bool {
+	if _, err := os.Stat(filepath.Join(cfg.Workspace, "pyenv")); err != nil {
 		return false
 	}
 	return true

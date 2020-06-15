@@ -19,12 +19,12 @@ const (
 GenerateScripts generate the scripts
 to be used
 */
-func GenerateScripts() {
+func GenerateScripts(cfg config.ManagerConfig) {
 	//scriptsFolder := config.GetScriptsFolder()
 	//_ = os.MkdirAll(scriptsFolder, os.ModePerm)
 
-	templateVars := scripts.GetTemplateVars()
-	for _, s := range config.GetAllScripts() {
+	templateVars := scripts.GetTemplateVars(cfg)
+	for _, s := range cfg.GetAllScripts() {
 		scriptFolder := filepath.Dir(s.Path)
 		log.Println(s)
 		log.Printf("---\ngenerating script:\nfolder: %s\nfile:   %s\n", scriptFolder, s.Path)

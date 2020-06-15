@@ -25,10 +25,10 @@ func clone(repo string, dest string) (r *git.Repository, err error) {
 /*
 SetPyenv clones pyenv repository
 */
-func SetPyenv() {
+func SetPyenv(cfg config.ManagerConfig) {
 	if runtime.GOOS == "linux" {
 		log.Println("Cloning pyenv...")
-		if repo, err := clone(pyenvRepo, config.GetPyenvFolder()); err != nil {
+		if repo, err := clone(pyenvRepo, cfg.GetPyenvFolder()); err != nil {
 			log.Panic(err.Error())
 		} else {
 			repo.Fetch(&git.FetchOptions{
@@ -45,8 +45,8 @@ func SetPyenv() {
 /*
 SetPythonEnv sets up the Python environment
 */
-func SetPythonEnv() {
+func SetPythonEnv(cfg config.ManagerConfig) {
 	log.Println("seting up ansible")
 
-	command.ExecuteScript(config.GetScriptPath("install_python_env"))
+	command.ExecuteScript(cfg.GetScriptPath("install_python_env"), cfg)
 }

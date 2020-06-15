@@ -70,8 +70,8 @@ func GetScriptTemplate(path string) string {
 GetTemplateVars generate the variables to
 parse script templates
 */
-func GetTemplateVars() ScriptTemplateVars {
+func GetTemplateVars(cfg config.ManagerConfig) ScriptTemplateVars {
 	return ScriptTemplateVars{
-		WorkspacePath: config.WorkspaceFolder(),
+		WorkspacePath: cfg.Workspace,
 	}
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
@@ -11,6 +12,15 @@ const (
 	pyenvFolder   = "pyenv"
 	scriptsFolder = "scripts"
 )
+
+/*
+ManagerConfig represents the
+app configuration
+*/
+type ManagerConfig struct {
+	Verbose   bool
+	Workspace string
+}
 
 var scripts = map[string]string{
 	"install_python_env":             "shell/setup/setup_python_environment.sh",
@@ -30,8 +40,8 @@ type ScriptDef struct {
 /*
 WorkspaceFolder returns the workspace folder
 */
-func WorkspaceFolder() string {
-	if wsDir, err := homedir.Expand(viper.GetString("workspace")); err != nil {
+func (c *ManagerConfig) WorkspaceFolder() string {
+	if wsDir, err := homedir.Expand(c.Workspace); err != nil {
 		panic(err.Error())
 	} else {
 		return wsDir
@@ -41,39 +51,31 @@ func WorkspaceFolder() string {
 /*
 GetPyenvFolder returns the pyenv path
 */
-func GetPyenvFolder() string {
-	return filepath.Join(WorkspaceFolder(), pyenvFolder)
+func (c *ManagerConfig) GetPyenvFolder() string {
+	return filepath.Join(c.Workspace, pyenvFolder)
 }
 
 /*
 GetPyenvBinFolder returns pyenv bin folder
 */
-func GetPyenvBinFolder() string {
-	return filepath.Join(WorkspaceFolder(), pyenvFolder, "bin")
+func (c *ManagerConfig) GetPyenvBinFolder() string {
+	return filepath.Join(c.Workspace, pyenvFolder, "bin")
 }
 
 /*
 GetScriptsFolder returns the scripts folder
 */
-func GetScriptsFolder() string {
-	return filepath.Join(WorkspaceFolder(), scriptsFolder)
+func (c *ManagerConfig) GetScriptsFolder() string {
+	return filepath.Join(c.Workspace, scriptsFolder)
 }
-
-/*
-InstallPythonEnvScript returns the install
-Python script path
-*/
-//func InstallPythonEnvScript() string {
-//	return filepath.Join(GetScriptsFolder(), scripts["install_python_env"])
-//}
 
 /*
 GetAllScripts returns all the script models
 */
-func GetAllScripts() []ScriptDef {
+func (c *ManagerConfig) GetAllScripts() []ScriptDef {
 	var scriptList []ScriptDef
 	for k := range scripts {
-		scriptList = append(scriptList, GetScriptInfo(k))
+		scriptList = append(scriptList, c.GetScriptInfo(k))
 	}
 
 	return scriptList
@@ -82,19 +84,19 @@ func GetAllScripts() []ScriptDef {
 /*
 GetScriptInfo returns
 */
-func GetScriptInfo(scriptName string) ScriptDef {
+func (c *ManagerConfig) GetScriptInfo(scriptName string) ScriptDef {
 	return ScriptDef{
 		Name:     scriptName,
 		Template: scripts[scriptName],
-		Path:     GetScriptPath(scriptName),
+		Path:     c.GetScriptPath(scriptName),
 	}
 }
 
 /*
 GetScriptPath Returns the path for this script
 */
-func GetScriptPath(scriptName string) string {
-	return filepath.Join(GetScriptsFolder(), scripts[scriptName])
+func (c *ManagerConfig) GetScriptPath(scriptName string) string {
+	return filepath.Join(c.GetScriptsFolder(), scripts[scriptName])
 }
 
 /*
@@ -103,4 +105,16 @@ current configuration
 */
 func SaveConfiguration() {
 	viper.SafeWriteConfig()
+}
+
+/*
+GetAppConfig returns the app config
+*/
+func GetAppConfig() *ManagerConfig {
+	var cfg ManagerConfig
+	if err := viper.Unmarshal(&cfg); err != nil {
+		log.Panic(err.Error())
+	}
+
+	return &cfg
 }

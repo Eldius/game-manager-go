@@ -1,13 +1,19 @@
 package command
 
 import (
-	"testing"
-	"strings"
 	"log"
+	"strings"
+	"testing"
+
+	"github.com/Eldius/game-manager-go/config"
 )
 
 func TestGetExecutionEnvVars(t *testing.T) {
-	env := GetExecutionEnvVars()
+	cfg := config.ManagerConfig{
+		Workspace: "/tmp/test_workspace_env_vars",
+		Verbose:   false,
+	}
+	env := GetExecutionEnvVars(cfg)
 
 	var pathVars []string
 	var homeVars []string

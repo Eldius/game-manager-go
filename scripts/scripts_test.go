@@ -27,6 +27,7 @@ func TestGetHeaderTemplate(t *testing.T) {
 
 func TestRenderScript(t *testing.T) {
 
+	cfg := config.GetAppConfig()
 	tmpDir, err := ioutil.TempDir("/tmp", "game-manager-test")
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +38,7 @@ func TestRenderScript(t *testing.T) {
 
 	viper.SetDefault("workspace", tmpDir)
 
-	s := config.GetScriptInfo("install_python_env")
+	s := cfg.GetScriptInfo("install_python_env")
 
 	renderedScript := RenderScript(s, ScriptTemplateVars{
 		WorkspacePath: tmpDir,
