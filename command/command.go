@@ -9,6 +9,7 @@ import (
 
 	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/logger"
+	"github.com/Eldius/game-manager-go/scripts"
 )
 
 /*
@@ -28,12 +29,12 @@ func GetExecutionEnvVars(cfg config.ManagerConfig) []string {
 /*
 ExecuteScript executes script by file path
 */
-func ExecuteScript(scriptPath string, cfg config.ManagerConfig) {
-	execArgs := append([]string{scriptPath})
+func ExecuteScript(script scripts.ScriptDef, cfg config.ManagerConfig) {
+	execArgs := append([]string{script.Path})
 
 	l := logger.NewLogWriter(logger.DefaultLogger())
 	cmd := &exec.Cmd{
-		Path:   scriptPath,
+		Path:   script.Path,
 		Args:   execArgs,
 		Env:    GetExecutionEnvVars(cfg),
 		Stdout: l,

@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/Eldius/game-manager-go/config"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +28,8 @@ var setupMinecraftCmd = &cobra.Command{
 	Short: "Sets up a minecraft server",
 	Long:  `Sets up a minecraft server.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("setupMinecraft called")
+		cfg := config.GetAppConfig()
+		log.Println(cfg)
 	},
 }
 

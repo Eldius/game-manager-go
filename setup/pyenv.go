@@ -7,6 +7,7 @@ import (
 
 	"github.com/Eldius/game-manager-go/command"
 	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/scripts"
 	"github.com/go-git/go-git/v5"
 )
 
@@ -48,5 +49,7 @@ SetPythonEnv sets up the Python environment
 func SetPythonEnv(cfg config.ManagerConfig) {
 	log.Println("seting up ansible")
 
-	command.ExecuteScript(cfg.GetScriptPath("install_python_env"), cfg)
+	engine := scripts.NewScriptEngine(cfg)
+
+	command.ExecuteScript(engine.GetSetupScript("install_python_env"), cfg)
 }

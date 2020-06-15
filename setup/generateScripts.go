@@ -1,18 +1,12 @@
 package setup
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/scripts"
-)
-
-const (
-	helpCommand = `pyenv help`
 )
 
 /*
@@ -23,21 +17,14 @@ func GenerateScripts(cfg config.ManagerConfig) {
 	//scriptsFolder := config.GetScriptsFolder()
 	//_ = os.MkdirAll(scriptsFolder, os.ModePerm)
 
-	templateVars := scripts.GetTemplateVars(cfg)
-	for _, s := range cfg.GetAllScripts() {
+	engine := scripts.NewScriptEngine(cfg)
+	for _, s := range engine.GetSetupScripts() {
 		scriptFolder := filepath.Dir(s.Path)
-		log.Println(s)
-		log.Printf("---\ngenerating script:\nfolder: %s\nfile:   %s\n", scriptFolder, s.Path)
+		log.Printf("---\ngenerating script:\nfolder: %s\nfile:   %s\ntype: %s\n", scriptFolder, s.Path, s.Type)
 		if err := os.MkdirAll(scriptFolder, os.ModePerm); err != nil {
 			log.Println(err.Error())
+			os.Exit(1)
 		}
-		ioutil.WriteFile(s.Path, []byte(scripts.RenderScript(s, templateVars)), getFileMode(s))
+		s.SaveToFile()
 	}
-}
-
-func getFileMode(s config.ScriptDef) os.FileMode {
-	if strings.HasSuffix(s.Path, "sh") {
-		return os.ModePerm
-	}
-	return 0666
 }

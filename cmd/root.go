@@ -4,10 +4,10 @@ Package cmd is where all commands will be
 package cmd
 
 import (
-	"log"
 	"fmt"
-	"os"
 	"io"
+	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -48,7 +48,8 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Run in verbose mode")
+	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -66,8 +67,7 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Search config in home directory with name ".game-manager-go" (without extension).
-		viper.AddConfigPath(home)
+		// Search config in $HOME/.game-manager directory with name "config.yml" (without extension).
 		viper.AddConfigPath(filepath.Join(home, ".game-manager"))
 		viper.SetConfigName("config")
 		viper.SetConfigType("yml")
