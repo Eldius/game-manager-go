@@ -13,8 +13,8 @@ const (
 )
 
 var scripts = map[string]string{
-	"install_python_env":   "shell/setup/setup_python_environment.sh",
-	"ansible_requirements": "ansible/roles/requirements.yml",
+	"install_python_env":             "shell/setup/setup_python_environment.sh",
+	"minecraft_ansible_requirements": "ansible/minecraft/roles/requirements.yml",
 }
 
 /*
