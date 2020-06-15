@@ -22,7 +22,7 @@ type ManagerConfig struct {
 	Workspace string
 }
 
-var scripts = map[string]string{
+var setupScripts = map[string]string{
 	"install_python_env":             "shell/setup/setup_python_environment.sh",
 	"minecraft_ansible_requirements": "ansible/minecraft/roles/requirements.yml",
 }
@@ -74,7 +74,7 @@ GetAllScripts returns all the script models
 */
 func (c *ManagerConfig) GetAllScripts() []ScriptDef {
 	var scriptList []ScriptDef
-	for k := range scripts {
+	for k := range setupScripts {
 		scriptList = append(scriptList, c.GetScriptInfo(k))
 	}
 
@@ -87,7 +87,7 @@ GetScriptInfo returns
 func (c *ManagerConfig) GetScriptInfo(scriptName string) ScriptDef {
 	return ScriptDef{
 		Name:     scriptName,
-		Template: scripts[scriptName],
+		Template: setupScripts[scriptName],
 		Path:     c.GetScriptPath(scriptName),
 	}
 }
@@ -96,7 +96,7 @@ func (c *ManagerConfig) GetScriptInfo(scriptName string) ScriptDef {
 GetScriptPath Returns the path for this script
 */
 func (c *ManagerConfig) GetScriptPath(scriptName string) string {
-	return filepath.Join(c.GetScriptsFolder(), scripts[scriptName])
+	return filepath.Join(c.GetScriptsFolder(), setupScripts[scriptName])
 }
 
 /*
