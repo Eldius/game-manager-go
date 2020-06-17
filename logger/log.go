@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -37,4 +39,13 @@ Write write logs to log (doh)
 func (lw LogWriter) Write(p []byte) (n int, err error) {
 	lw.logger.Print(string(p))
 	return len(p), nil
+}
+
+/*
+Debug print an object in
+JSON encoding
+*/
+func Debug(o interface{}) {
+	b, _ := json.Marshal(o)
+	log.Println(fmt.Sprintf("\n---\ndebug:\n%s\n---", string(b)))
 }

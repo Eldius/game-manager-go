@@ -13,10 +13,25 @@ import (
 )
 
 /*
-GetExecutionEnvVars generates the env vars to execute
-commands or scripts
+GetScriptExecutionEnvVars generates the env vars to execute
+scripts
 */
-func GetExecutionEnvVars(cfg config.ManagerConfig) []string {
+func GetScriptExecutionEnvVars(s scripts.ScriptDef) []string {
+	cfg := s.ScriptConfig()
+	sysPath, _ := os.LookupEnv("PATH")
+	newPath := fmt.Sprintf("PATH=%s:%s", cfg.GetPyenvBinFolder(), sysPath)
+	workspace := cfg.Workspace
+	newUserHome := fmt.Sprintf("HOME=%s", workspace)
+	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
+
+	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
+}
+
+/*
+GetCommandExecutionEnvVars generates the env vars to execute
+commands
+*/
+func GetCommandExecutionEnvVars(cfg config.ManagerConfig) []string {
 	sysPath, _ := os.LookupEnv("PATH")
 	newPath := fmt.Sprintf("PATH=%s:%s", cfg.GetPyenvBinFolder(), sysPath)
 	workspace := cfg.Workspace
@@ -29,14 +44,34 @@ func GetExecutionEnvVars(cfg config.ManagerConfig) []string {
 /*
 ExecuteScript executes script by file path
 */
-func ExecuteScript(script scripts.ScriptDef, cfg config.ManagerConfig) {
-	execArgs := append([]string{script.Path})
+func ExecuteScript(s scripts.ScriptDef) {
+
+	execArgs := append([]string{s.Path})
 
 	l := logger.NewLogWriter(logger.DefaultLogger())
 	cmd := &exec.Cmd{
-		Path:   script.Path,
+		Path:   s.Path,
 		Args:   execArgs,
-		Env:    GetExecutionEnvVars(cfg),
+		Env:    GetScriptExecutionEnvVars(s),
+		Stdout: l,
+		Stderr: l,
+	}
+
+	executeCmd(cmd)
+
+}
+
+/*
+ExecuteProvisiningScript executes script by file path
+*/
+func ExecuteProvisiningScript(s scripts.ScriptDef) {
+	execArgs := append([]string{s.Path})
+
+	l := logger.NewLogWriter(logger.DefaultLogger())
+	cmd := &exec.Cmd{
+		Path:   s.Path,
+		Args:   execArgs,
+		Env:    GetScriptExecutionEnvVars(s),
 		Stdout: l,
 		Stderr: l,
 	}
@@ -58,7 +93,7 @@ func ExecutePyenvCommand(args []string, cfg config.ManagerConfig) {
 	cmd := &exec.Cmd{
 		Path: pyenv,
 		Args: execArgs,
-		Env:  GetExecutionEnvVars(cfg),
+		Env:  GetCommandExecutionEnvVars(cfg),
 		//Stdin: os.Stdin,
 		Stdout: l,
 		Stderr: l,
@@ -74,7 +109,7 @@ func ExecuteShellCommand(command []string, cfg config.ManagerConfig) {
 	l := logger.NewLogWriter(logger.DefaultLogger())
 	executeCmd(&exec.Cmd{
 		Args:   command,
-		Env:    GetExecutionEnvVars(cfg),
+		Env:    GetCommandExecutionEnvVars(cfg),
 		Stdout: l,
 		Stderr: l,
 	})

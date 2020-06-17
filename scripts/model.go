@@ -30,19 +30,25 @@ const (
 )
 
 var setupScripts = map[string]map[string]string{
-	"install_python_env": map[string]string{
+	"install_python_env": {
 		"template": "shell/setup/setup_python_environment.sh",
 		"type":     string(ShellScript),
 	},
-	"minecraft_ansible_requirements": map[string]string{
+	"minecraft_ansible_requirements": {
 		"template": "ansible/minecraft/roles/requirements.yml",
 		"type":     string(AnsibleScript),
 	},
 }
 
-var provisioningScripts = map[string]string{
-	"minecraft_playbook":     "ansible/minecraft/deploy-minecraft.yml",
-	"minecraft_playbook_run": "shell/minecraft/execute_ansible_playbook.sh",
+var provisioningScripts = map[string]map[string]string{
+	"minecraft_playbook": {
+		"template": "ansible/minecraft/deploy-minecraft.yml",
+		"type":     string(AnsibleScript),
+	},
+	"minecraft_playbook_run": {
+		"template": "shell/minecraft/execute_ansible_playbook.sh",
+		"type":     string(ShellScript),
+	},
 }
 
 /*
@@ -63,11 +69,54 @@ ScriptDef represents a model to
 render a script
 */
 type ScriptDef struct {
-	Name     string
-	Template string
-	Path     string
-	Type     ScriptType
-	cfg      config.ManagerConfig
+	Name          string
+	Template      string
+	Path          string
+	Type          ScriptType
+	cfg           config.ManagerConfig
+	provisionInfo *ServerProvisioningInfo
+}
+
+/*
+ServerProvisioningInfo is a model to
+represents provisioning parameters
+*/
+type ServerProvisioningInfo struct {
+	Game    string
+	IP      string
+	SSHPort int
+	SSHKey  string
+	Args    map[string]string
+}
+
+/*
+NewServerProvisioning creates a server provisioning data
+*/
+func NewServerProvisioning(game string, ip string, sshPort int, sshKey string, args []string) *ServerProvisioningInfo {
+	return &ServerProvisioningInfo{
+		Game:    game,
+		IP:      ip,
+		SSHPort: sshPort,
+		SSHKey:  sshKey,
+		Args:    getArgsMap(args),
+	}
+}
+
+func getArgsMap(args []string) map[string]string {
+	var argsMap = make(map[string]string)
+	for _, a := range args {
+		tmp := strings.Split(a, "=")
+		argsMap[tmp[0]] = tmp[1]
+	}
+
+	return argsMap
+}
+
+/*
+ScriptConfig returns the execution configuration
+*/
+func (s *ScriptDef) ScriptConfig() config.ManagerConfig {
+	return s.cfg
 }
 
 /*
@@ -162,6 +211,13 @@ GetSetupScript returns a single setup script model
 */
 func (s *ScriptEngine) GetSetupScript(scriptName string) ScriptDef {
 	return s.GetScriptDef(scriptName, setupScripts)
+}
+
+/*
+GetProvisioningScript returns a single provisioning script model
+*/
+func (s *ScriptEngine) GetProvisioningScript(scriptName string) ScriptDef {
+	return s.GetScriptDef(scriptName, provisioningScripts)
 }
 
 /*

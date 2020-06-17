@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"log"
-
-	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/logger"
+	"github.com/Eldius/game-manager-go/scripts"
 	"github.com/spf13/cobra"
 )
 
@@ -13,14 +12,24 @@ var setupMinecraftCmd = &cobra.Command{
 	Short: "Sets up a minecraft server",
 	Long:  `Sets up a minecraft server.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := config.GetAppConfig()
-		log.Println(cfg)
+		//cfg := config.GetAppConfig()
+		hostCfg := scripts.NewServerProvisioning("minecraft", hostIP, sshPort, hostIP, args)
+		logger.Debug(hostCfg)
 	},
 }
+
+var (
+	sshKey  string
+	sshPort int
+	hostIP  string
+)
 
 func init() {
 	minecraftCmd.AddCommand(setupMinecraftCmd)
 
+	setupMinecraftCmd.Flags().StringVarP(&sshKey, "ssh-key", "k", "~/.ssh/id_rsa", "The SSH key to log into remote server.")
+	setupMinecraftCmd.Flags().IntVarP(&sshPort, "ssh-port", "p", 22, "The SSH port to connect in the remote server.")
+	setupMinecraftCmd.Flags().StringVarP(&hostIP, "server", "s", "", "The host to configure.")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

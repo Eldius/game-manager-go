@@ -1,11 +1,21 @@
-package minecraft
+package provisioning
 
-import "github.com/Eldius/game-manager-go/config"
+import (
+	"github.com/Eldius/game-manager-go/command"
+	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/scripts"
+)
 
 /*
-Provisione configure thea Minecraft game server
+Provision configure thea Minecraft game server
 */
-func Provisione(cfg config.ManagerConfig) {
-	//playbook := cfg.GetProvisioningScriptInfo("minecraft_playbook")
+func Provision(cfg config.ManagerConfig) {
+	engine := scripts.NewScriptEngine(cfg)
+	playbook := engine.GetProvisioningScript("minecraft_playbook")
+	shell := engine.GetProvisioningScript("minecraft_playbook_run")
 
+	playbook.SaveToFile()
+	shell.SaveToFile()
+
+	command.ExecuteScript(shell)
 }

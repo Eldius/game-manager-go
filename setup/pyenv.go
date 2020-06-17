@@ -51,5 +51,5 @@ func SetPythonEnv(cfg config.ManagerConfig) {
 
 	engine := scripts.NewScriptEngine(cfg)
 
-	command.ExecuteScript(engine.GetSetupScript("install_python_env"), cfg)
+	command.ExecuteScript(engine.GetSetupScript("install_python_env"))
 }
