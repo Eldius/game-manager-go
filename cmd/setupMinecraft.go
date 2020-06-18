@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/Eldius/game-manager-go/config"
-	"github.com/Eldius/game-manager-go/logger"
 	"github.com/Eldius/game-manager-go/provisioning"
 	"github.com/Eldius/game-manager-go/scripts"
 	"github.com/spf13/cobra"
@@ -15,9 +14,9 @@ var setupMinecraftCmd = &cobra.Command{
 	Long:  `Sets up a minecraft server.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := config.GetAppConfig()
-		hostCfg := scripts.NewServerProvisioning("minecraft", hostIP, sshPort, hostIP, remoteUser, args)
+		hostCfg := scripts.NewServerProvisioning("minecraft", hostIP, sshPort, remoteUser, sshKey, args)
 		provisioning.Provision(*cfg, hostCfg)
-		logger.Debug(hostCfg)
+		//logger.Debug(hostCfg)
 	},
 }
 

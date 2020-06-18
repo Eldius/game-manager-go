@@ -1,10 +1,8 @@
 #!/bin/bash
 
-ansible-playbook \
+echo 'ansible-playbook \
     -i "{{ .ProvisioningInfo.IP }}," \
     -u {{ .ProvisioningInfo.RemoteUser }} \
-    {{ range $key, $value := .ProvisioningInfo.Args }}
-        -e "{{ $key }}={{ $value }}"
-    {{end}}
+        {{ range $key, $value := .ProvisioningInfo.Args }}-e "{{ $key }}={{ $value }}" {{end}} \
     --private-key {{ .ProvisioningInfo.SSHKey }} \
-        deploy-minecraft.yml
+        deploy-minecraft.yml'

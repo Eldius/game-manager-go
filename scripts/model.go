@@ -187,11 +187,11 @@ SaveToFile saves rendered script to file
 */
 func (s *ScriptDef) SaveToFile() {
 	fileMode := s.getFileMode()
+	scriptDir := filepath.Dir(s.Path)
+	os.MkdirAll(scriptDir, os.ModePerm)
 	if s.cfg.Verbose {
 		log.Printf("\n---\nsaving to file\n- [%s] %s: %d\n---\n", s.Type, s.Template, fileMode)
 	}
-	log.Printf("\n---\nsaving to file\n- [%s] %s: %v\n---\n", s.Type, s.Template, fileMode)
-
 	ioutil.WriteFile(s.Path, []byte(s.Render()), fileMode)
 }
 
@@ -216,6 +216,7 @@ func (s *ScriptDef) GetScriptExecutionEnvVars() []string {
 	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
 
 }
+
 /*
 Execute executes script
 */
@@ -234,19 +235,27 @@ func (s *ScriptDef) Execute() {
 		Stderr: l,
 	}
 
-	executeCmd(cmd)
+	s.executeCmd(cmd)
 
 }
 
-func executeCmd(cmd *exec.Cmd) {
-	log.Println("cmd:", cmd.String())
+func (s *ScriptDef) executeCmd(cmd *exec.Cmd) {
+
+	if s.cfg.Verbose {
+		log.Println("cmd:", cmd.String())
+	}
 
 	log.Println()
 	log.Println("**********")
-	log.Println("env vars:\n", cmd.Env)
+	if s.cfg.Verbose {
+		log.Println("env vars:\n", cmd.Env)
+	}
 	if err := cmd.Run(); err != nil {
 		log.Println("---")
-		log.Println("Failed to install python")
+		log.Println("Failed to execute script", s.Template)
+		if s.cfg.Verbose {
+			log.Println(s.Render())
+		}
 		log.Println(err.Error())
 	}
 	log.Println("**********")
