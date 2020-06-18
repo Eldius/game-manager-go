@@ -91,6 +91,7 @@ func setupLog(home string) {
 	if f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666); err == nil {
 		mw := io.MultiWriter(os.Stdout, f)
 		log.SetOutput(mw)
+		log.SetFlags(log.Ldate + log.Ltime + log.Lshortfile + log.Lmsgprefix)
 	} else {
 		fmt.Println(err)
 		os.Exit(1)

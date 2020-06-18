@@ -2,14 +2,17 @@ package scripts
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"text/template"
 
 	"github.com/Eldius/game-manager-go/config"
+	"github.com/Eldius/game-manager-go/logger"
 	"github.com/gobuffalo/packr"
 )
 
@@ -56,7 +59,8 @@ ScriptTemplateVars is a representation of
 vars to parse script templates
 */
 type ScriptTemplateVars struct {
-	WorkspacePath string
+	WorkspacePath    string
+	ProvisioningInfo *ServerProvisioningInfo
 }
 
 /*
@@ -69,12 +73,12 @@ ScriptDef represents a model to
 render a script
 */
 type ScriptDef struct {
-	Name          string
-	Template      string
-	Path          string
-	Type          ScriptType
-	cfg           config.ManagerConfig
-	provisionInfo *ServerProvisioningInfo
+	Name       string
+	Template   string
+	Path       string
+	Type       ScriptType
+	cfg        config.ManagerConfig
+	ParamsInfo *ServerProvisioningInfo
 }
 
 /*
@@ -82,23 +86,25 @@ ServerProvisioningInfo is a model to
 represents provisioning parameters
 */
 type ServerProvisioningInfo struct {
-	Game    string
-	IP      string
-	SSHPort int
-	SSHKey  string
-	Args    map[string]string
+	Game       string
+	IP         string
+	SSHPort    int
+	SSHKey     string
+	RemoteUser string
+	Args       map[string]string
 }
 
 /*
 NewServerProvisioning creates a server provisioning data
 */
-func NewServerProvisioning(game string, ip string, sshPort int, sshKey string, args []string) *ServerProvisioningInfo {
+func NewServerProvisioning(game string, ip string, sshPort int, remoteUser string, sshKey string, args []string) *ServerProvisioningInfo {
 	return &ServerProvisioningInfo{
-		Game:    game,
-		IP:      ip,
-		SSHPort: sshPort,
-		SSHKey:  sshKey,
-		Args:    getArgsMap(args),
+		Game:       game,
+		IP:         ip,
+		SSHPort:    sshPort,
+		SSHKey:     sshKey,
+		RemoteUser: remoteUser,
+		Args:       getArgsMap(args),
 	}
 }
 
@@ -110,6 +116,14 @@ func getArgsMap(args []string) map[string]string {
 	}
 
 	return argsMap
+}
+
+/*
+WithParams add the provisioning info
+*/
+func (s *ScriptDef) WithParams(i *ServerProvisioningInfo) *ScriptDef {
+	s.ParamsInfo = i
+	return s
 }
 
 /*
@@ -163,7 +177,8 @@ func (s *ScriptDef) loadScriptTemplate(path string) string {
 
 func (s *ScriptDef) getParseVariables() ScriptTemplateVars {
 	return ScriptTemplateVars{
-		WorkspacePath: s.cfg.Workspace,
+		WorkspacePath:    s.cfg.Workspace,
+		ProvisioningInfo: s.ParamsInfo,
 	}
 }
 
@@ -188,6 +203,56 @@ func (s *ScriptDef) getFileMode() os.FileMode {
 }
 
 /*
+GetScriptExecutionEnvVars generates the env vars to execute
+scripts
+*/
+func (s *ScriptDef) GetScriptExecutionEnvVars() []string {
+	sysPath, _ := os.LookupEnv("PATH")
+	newPath := fmt.Sprintf("PATH=%s:%s", s.cfg.GetPyenvBinFolder(), sysPath)
+	workspace := s.cfg.Workspace
+	newUserHome := fmt.Sprintf("HOME=%s", workspace)
+	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
+
+	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
+
+}
+/*
+Execute executes script
+*/
+func (s *ScriptDef) Execute() {
+
+	s.SaveToFile()
+
+	execArgs := append([]string{s.Path})
+
+	l := logger.NewLogWriter(logger.DefaultLogger())
+	cmd := &exec.Cmd{
+		Path:   s.Path,
+		Args:   execArgs,
+		Env:    s.GetScriptExecutionEnvVars(),
+		Stdout: l,
+		Stderr: l,
+	}
+
+	executeCmd(cmd)
+
+}
+
+func executeCmd(cmd *exec.Cmd) {
+	log.Println("cmd:", cmd.String())
+
+	log.Println()
+	log.Println("**********")
+	log.Println("env vars:\n", cmd.Env)
+	if err := cmd.Run(); err != nil {
+		log.Println("---")
+		log.Println("Failed to install python")
+		log.Println(err.Error())
+	}
+	log.Println("**********")
+}
+
+/*
 ScriptEngine is the script executor
 */
 type ScriptEngine struct {
@@ -197,10 +262,10 @@ type ScriptEngine struct {
 /*
 GetSetupScripts returns all the script models
 */
-func (s *ScriptEngine) GetSetupScripts() []ScriptDef {
-	var scriptList []ScriptDef
+func (s *ScriptEngine) GetSetupScripts() []*ScriptDef {
+	var scriptList []*ScriptDef
 	for k := range setupScripts {
-		scriptList = append(scriptList, s.GetScriptDef(k, setupScripts))
+		scriptList = append(scriptList, s.GetScriptDef(k, s.Cfg, setupScripts))
 	}
 
 	return scriptList
@@ -209,26 +274,27 @@ func (s *ScriptEngine) GetSetupScripts() []ScriptDef {
 /*
 GetSetupScript returns a single setup script model
 */
-func (s *ScriptEngine) GetSetupScript(scriptName string) ScriptDef {
-	return s.GetScriptDef(scriptName, setupScripts)
+func (s *ScriptEngine) GetSetupScript(scriptName string) *ScriptDef {
+	return s.GetScriptDef(scriptName, s.Cfg, setupScripts)
 }
 
 /*
 GetProvisioningScript returns a single provisioning script model
 */
-func (s *ScriptEngine) GetProvisioningScript(scriptName string) ScriptDef {
-	return s.GetScriptDef(scriptName, provisioningScripts)
+func (s *ScriptEngine) GetProvisioningScript(scriptName string) *ScriptDef {
+	return s.GetScriptDef(scriptName, s.Cfg, provisioningScripts)
 }
 
 /*
 GetScriptDef returns
 */
-func (s *ScriptEngine) GetScriptDef(scriptName string, scriptsDef map[string]map[string]string) ScriptDef {
+func (s *ScriptEngine) GetScriptDef(scriptName string, cfg config.ManagerConfig, scriptsDef map[string]map[string]string) *ScriptDef {
 	template := scriptsDef[scriptName]["template"]
-	return ScriptDef{
+	return &ScriptDef{
 		Name:     scriptName,
 		Template: template,
 		Path:     filepath.Join(s.Cfg.GetScriptsFolder(), template),
 		Type:     ScriptType(scriptsDef[scriptName]["type"]),
+		cfg:      cfg,
 	}
 }

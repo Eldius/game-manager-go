@@ -29,3 +29,25 @@ func TestConfiLoad(t *testing.T) {
 		t.Errorf("Verbose should be 'true', but was '%v'", cfg.Verbose)
 	}
 }
+
+func TestConfiLoad2(t *testing.T) {
+	home := "/tmp/config_test/home"
+
+	t.Log(fmt.Sprintf("home: %s", home))
+
+	workspace := filepath.Join(home, "workspace")
+	cfg := ManagerConfig{
+		Workspace: workspace,
+	}
+
+	if cfg.Workspace != workspace {
+		t.Errorf("Workspace should be '%s', but was '%s'", home, cfg.Workspace)
+	}
+	pyenvPath := filepath.Join(workspace, "pyenv")
+	if cfg.GetPyenvFolder() != pyenvPath {
+		t.Errorf("PyenvFolder should be '%s', but was '%s'", pyenvPath, cfg.GetPyenvFolder())
+	}
+	if cfg.Verbose {
+		t.Errorf("Verbose should be 'false', but was '%v'", cfg.Verbose)
+	}
+}

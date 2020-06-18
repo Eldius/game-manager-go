@@ -9,23 +9,7 @@ import (
 
 	"github.com/Eldius/game-manager-go/config"
 	"github.com/Eldius/game-manager-go/logger"
-	"github.com/Eldius/game-manager-go/scripts"
 )
-
-/*
-GetScriptExecutionEnvVars generates the env vars to execute
-scripts
-*/
-func GetScriptExecutionEnvVars(s scripts.ScriptDef) []string {
-	cfg := s.ScriptConfig()
-	sysPath, _ := os.LookupEnv("PATH")
-	newPath := fmt.Sprintf("PATH=%s:%s", cfg.GetPyenvBinFolder(), sysPath)
-	workspace := cfg.Workspace
-	newUserHome := fmt.Sprintf("HOME=%s", workspace)
-	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
-
-	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
-}
 
 /*
 GetCommandExecutionEnvVars generates the env vars to execute
@@ -39,45 +23,6 @@ func GetCommandExecutionEnvVars(cfg config.ManagerConfig) []string {
 	pyenvRoot := fmt.Sprintf("PYENV_ROOT=%s/pyenv", workspace)
 
 	return append(os.Environ(), newPath, newUserHome, pyenvRoot)
-}
-
-/*
-ExecuteScript executes script by file path
-*/
-func ExecuteScript(s scripts.ScriptDef) {
-
-	execArgs := append([]string{s.Path})
-
-	l := logger.NewLogWriter(logger.DefaultLogger())
-	cmd := &exec.Cmd{
-		Path:   s.Path,
-		Args:   execArgs,
-		Env:    GetScriptExecutionEnvVars(s),
-		Stdout: l,
-		Stderr: l,
-	}
-
-	executeCmd(cmd)
-
-}
-
-/*
-ExecuteProvisiningScript executes script by file path
-*/
-func ExecuteProvisiningScript(s scripts.ScriptDef) {
-	execArgs := append([]string{s.Path})
-
-	l := logger.NewLogWriter(logger.DefaultLogger())
-	cmd := &exec.Cmd{
-		Path:   s.Path,
-		Args:   execArgs,
-		Env:    GetScriptExecutionEnvVars(s),
-		Stdout: l,
-		Stderr: l,
-	}
-
-	executeCmd(cmd)
-
 }
 
 /*
