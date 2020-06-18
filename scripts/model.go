@@ -169,9 +169,6 @@ func (s *ScriptDef) loadScriptTemplate(path string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if s.cfg.Verbose {
-		log.Println(script)
-	}
 	return script
 }
 
@@ -257,6 +254,7 @@ func (s *ScriptDef) executeCmd(cmd *exec.Cmd) {
 			log.Println(s.Render())
 		}
 		log.Println(err.Error())
+		os.Exit(1)
 	}
 	log.Println("**********")
 }
