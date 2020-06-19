@@ -15,3 +15,8 @@
 # vendor/
 
 .bin/
+.vagrant/
+*.log
+__pychache__/
+*.pyc
+.vscode/

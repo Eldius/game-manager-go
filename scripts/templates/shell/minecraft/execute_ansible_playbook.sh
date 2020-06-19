@@ -1,4 +1,3 @@
-#!/bin/bash
 
 cd {{ .WorkspacePath }}/scripts/ansible/minecraft/
 pwd
@@ -14,6 +13,6 @@ ansible-playbook \
     -i "{{ .ProvisioningInfo.IP }}," \
     -u "{{ .ProvisioningInfo.RemoteUser }}" \
     -e "ansible_port={{ .ProvisioningInfo.SSHPort }}" \
-        {{ range $key, $value := .ProvisioningInfo.Args }}-e "{{ $key }}={{ $value }}" {{end}} \
+        --extra-vars "{{ range $key, $value := .ProvisioningInfo.Args }}{{ $key }}={{ $value }} {{end}}" \
     --private-key {{ .ProvisioningInfo.SSHKey }} \
         deploy-minecraft.yml
