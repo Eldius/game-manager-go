@@ -3,6 +3,7 @@ package setup
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/Eldius/game-manager-go/config"
@@ -11,7 +12,8 @@ import (
 )
 
 const (
-	pyenvRepo = "https://github.com/pyenv/pyenv.git"
+	pyenvRepo           = "https://github.com/pyenv/pyenv.git"
+	pyenvVirtualenvRepo = "https://github.com/pyenv/pyenv-virtualenv.git"
 )
 
 func clone(repo string, dest string) (r *git.Repository, err error) {
@@ -36,6 +38,18 @@ func SetPyenv(cfg config.ManagerConfig) {
 				Progress:   os.Stdout,
 			})
 		}
+		if repo, err := clone(
+			pyenvVirtualenvRepo,
+			filepath.Join(cfg.GetPyenvFolder(), "plugins", "pyenv-virtualenv"),
+		); err != nil {
+			log.Panic(err.Error())
+		} else {
+			repo.Fetch(&git.FetchOptions{
+				RemoteName: git.DefaultRemoteName,
+				Progress:   os.Stdout,
+			})
+		}
+
 	} else if runtime.GOOS == "windows" {
 		log.Println("[not implemented yet] Cloning pyenv-win...")
 		os.Exit(1)

@@ -1,6 +1,5 @@
 ---
 - hosts: all
-    gather_facts: true
-
-    roles:
-    - role: minecraft-java-edition
+  gather_facts: true
+  roles:
+  - role: minecraft-java-edition

@@ -60,6 +60,8 @@ vars to parse script templates
 */
 type ScriptTemplateVars struct {
 	WorkspacePath    string
+	PythonVersion    string
+	VenvName         string
 	ProvisioningInfo *ServerProvisioningInfo
 }
 
@@ -153,14 +155,17 @@ func (s *ScriptDef) Render() string {
 	}
 
 	buf := new(bytes.Buffer)
-	tmpl.Execute(buf, s.getParseVariables())
+	tmpl.Execute(buf, s.loadTemplateVars())
 	return buf.String()
 
 }
 
-func (s *ScriptDef) loadTemplateVars(cfg config.ManagerConfig) ScriptTemplateVars {
+func (s *ScriptDef) loadTemplateVars() ScriptTemplateVars {
 	return ScriptTemplateVars{
-		WorkspacePath: cfg.Workspace,
+		WorkspacePath:    s.cfg.Workspace,
+		PythonVersion:    "3.8.0",
+		VenvName:         "game-manager",
+		ProvisioningInfo: s.ParamsInfo,
 	}
 }
 
@@ -170,13 +175,6 @@ func (s *ScriptDef) loadScriptTemplate(path string) string {
 		log.Fatal(err)
 	}
 	return script
-}
-
-func (s *ScriptDef) getParseVariables() ScriptTemplateVars {
-	return ScriptTemplateVars{
-		WorkspacePath:    s.cfg.Workspace,
-		ProvisioningInfo: s.ParamsInfo,
-	}
 }
 
 /*
