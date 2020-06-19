@@ -47,19 +47,6 @@ func ExecutePyenvCommand(args []string, cfg config.ManagerConfig) {
 	executeCmd(cmd)
 }
 
-/*
-ExecuteShellCommand executes a command
-*/
-func ExecuteShellCommand(command []string, cfg config.ManagerConfig) {
-	l := logger.NewLogWriter(logger.DefaultLogger())
-	executeCmd(&exec.Cmd{
-		Args:   command,
-		Env:    GetCommandExecutionEnvVars(cfg),
-		Stdout: l,
-		Stderr: l,
-	})
-}
-
 func executeCmd(cmd *exec.Cmd) {
 	log.Println("cmd:", cmd.String())
 
