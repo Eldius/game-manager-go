@@ -1,7 +1,7 @@
 attrs==19.3.0
 bcrypt==3.1.7
 cffi==1.14.0
-cryptography==2.9.2
+cryptography==3.2
 more-itertools==8.4.0
 packaging==20.4
 paramiko==2.7.1
